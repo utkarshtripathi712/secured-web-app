@@ -1,38 +1,40 @@
-# 🔐 Secured Web Application
+from flask import Flask, render_template, request, redirect, session
+import bcrypt
 
-## Objective:
-To create a secure web application where users can register, login, and logout safely using modern authentication methods.
+app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'
 
-## Technologies Used:
-- Python (Flask Framework)
-- MySQL (Database)
-- bcrypt (For password encryption)
-- HTML/CSS (Frontend Design)
+users = {}  # Dummy in-memory DB
 
-## Key Features:
-- **User Registration**: Users can sign up. Passwords are encrypted using `bcrypt`.
-- **User Login**: Authenticates user credentials.
-- **Session Management**: Maintains login state securely.
-- **Logout**: Ends the session safely.
+@app.route('/')
+def home():
+    if 'username' in session:
+        return f"Welcome {session['username']}! <br><a href='/logout'>Logout</a>"
+    return render_template('login.html')
 
-## How It Works:
-1. **Register**: User submits form → Password is hashed and stored.
-2. **Login**: Password is matched with hashed one in DB.
-3. **Session**: If valid, session is created.
-4. **Logout**: Session cleared, user logged out.
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password'].encode('utf-8')
+        hashed = bcrypt.hashpw(password, bcrypt.gensalt())
+        users[username] = hashed
+        return redirect('/')
+    return render_template('register.html')
 
-## Real-world Usage:
-Can be used in admin dashboards, e-commerce logins, educational portals, etc.
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form['username']
+    password = request.form['password'].encode('utf-8')
+    if username in users and bcrypt.checkpw(password, users[username]):
+        session['username'] = username
+        return redirect('/')
+    return 'Invalid credentials'
 
-## Simple Explanation for Viva:
-> "Sir, yeh project Flask framework se bana hai. Isme user registration, login, aur logout functionality hai. Password securely bcrypt se encrypt kiya jata hai. Session handling se user ka login maintain hota hai."
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect('/')
 
-## Screenshots:
-### 🔐 Register Page
-![Register Page](screenshot1.png)
-
-### 🔑 Login Page
-![Login Page](screenshot2.png)
-
-## ✨ Developed By:
-**Utkarsh Tripathi**
+if __name__ == '__main__':
+    app.run(debug=True)
