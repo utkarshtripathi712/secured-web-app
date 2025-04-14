@@ -2,8 +2,6 @@
 
 A secure full-stack web application with robust authentication and protection against common web vulnerabilities like SQL Injection and XSS. Designed to demonstrate cybersecurity best practices in real-world applications.
 
----
-
 ## 🚀 Tech Stack
 
 - **Frontend:** React.js
